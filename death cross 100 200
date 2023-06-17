@@ -1,0 +1,21 @@
+import pandas as pd
+import numpy as np
+import yfinance as yf
+
+# Mengunduh data historis dari saham tertentu menggunakan modul yfinance
+data = yf.download('TSLA', start='2022-01-01', end='2023-06-01')
+
+# Menghitung EMA 100 dan EMA 200
+data['EMA100'] = data['Close'].ewm(span=100, adjust=False).mean()
+data['EMA200'] = data['Close'].ewm(span=200, adjust=False).mean()
+
+# Mencari Death Cross
+death_cross = np.where(data['EMA100'] < data['EMA200'], True, False)
+cross_indices = np.where(np.diff(death_cross.astype(int)) == 1)[0]
+
+# Menampilkan hasil
+for index in cross_indices:
+    print("Death Cross pada tanggal:", data.index[index+1])
+
+# Menampilkan grafik EMA
+data[['Close', 'EMA100', 'EMA200']].plot(figsize=(10, 6))
